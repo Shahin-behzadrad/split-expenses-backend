@@ -84,7 +84,13 @@ const createGroup = async (
   }
 };
 
-const updateGroup = async (req: Request, res: Response) => {
+const updateGroup = async (req: Request, res: Response): Promise<any> => {
+  if (!Array.isArray(req.body.users)) {
+    return res
+      .status(400)
+      .json(formatResponse(400, "Users should be an array."));
+  }
+
   try {
     const [updated] = await Group.update(req.body, {
       where: { id: req.params.id },
@@ -106,4 +112,29 @@ const updateGroup = async (req: Request, res: Response) => {
   }
 };
 
-export default { getAllGroups, getGroupById, createGroup, updateGroup };
+const deleteGroup = async (req: Request, res: Response) => {
+  try {
+    const group = await Group.findByPk(req.params.id);
+
+    if (group) {
+      await group.destroy();
+      res.json(formatResponse(202, "Group successfully deleted."));
+    } else {
+      res.status(404).json(formatResponse(404, "Group not found."));
+    }
+  } catch (error: any) {
+    res
+      .status(500)
+      .json(
+        formatResponse(500, "Error deleting group.", null, {}, [error.message])
+      );
+  }
+};
+
+export default {
+  getAllGroups,
+  getGroupById,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+};
