@@ -1,0 +1,29 @@
+{
+  "name": "split-expenses-backend",
+  "version": "1.0.0",
+  "description": "A backend for an expense-sharing application built with Node.js, Express, Sequelize, and MySQL2.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec ts-node src/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shahin-behzadrad/split-expenses-backend.git"
+  },
+  "author": "shahin-behzadrad",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.3",
+    "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.8.7",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
