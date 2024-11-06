@@ -1,18 +1,24 @@
 import { Request, Response } from "express";
 import { formatResponse } from "../util/responseUtil";
 import { Group } from "../models/Group";
+import { CreateGroupRequest } from "../types/Group.type";
+import { v4 as uuidv4 } from "uuid";
 
 const getAllGroups = async (req: Request, res: Response) => {
   try {
     const groups = await Group.findAll();
     res.json(
-      formatResponse(200, "اطلاعات مورد نظر با موفقیت دریافت شد.", groups)
+      formatResponse(
+        200,
+        "The requested data has been successfully retrieved.",
+        groups
+      )
     );
   } catch (error: any) {
     res
       .status(500)
       .json(
-        formatResponse(500, "خطا در دریافت اطلاعات.", null, {}, [error.message])
+        formatResponse(500, "Error retrieving data.", null, {}, [error.message])
       );
   }
 };
@@ -21,30 +27,59 @@ const getGroupById = async (req: Request, res: Response) => {
   try {
     const group = await Group.findByPk(req.params.id);
     if (group) {
-      res.json(formatResponse(200, "اطلاعات گروه با موفقیت دریافت شد.", group));
+      res.json(
+        formatResponse(200, "Groups data retrieved successfully.", group)
+      );
     } else {
-      res.status(404).json(formatResponse(404, "گروه پیدا نشد.", null));
+      res.status(404).json(formatResponse(404, "Group not found.", null));
     }
   } catch (error: any) {
     res
       .status(500)
       .json(
-        formatResponse(500, "خطا در دریافت اطلاعات.", null, {}, [error.message])
+        formatResponse(500, "Error retrieving data.", null, {}, [error.message])
       );
   }
 };
 
-const createGroup = async (req: Request, res: Response) => {
+const createGroup = async (
+  req: Request<{}, {}, CreateGroupRequest>,
+  res: Response
+): Promise<any> => {
+  const { currency, description, name, users } = req.body;
+
+  if (!Array.isArray(users)) {
+    return res
+      .status(400)
+      .json(formatResponse(400, "Users should be an array."));
+  }
+
   try {
-    const group = await Group.create(req.body);
-    res
+    if (!currency || !name) {
+      return res
+        .status(400)
+        .json(formatResponse(400, "Missing required fields."));
+    }
+
+    const usersWithIds = users.map((name: string) => ({
+      id: uuidv4(),
+      name,
+    }));
+
+    const group = await Group.create({
+      name,
+      description,
+      currency,
+      users: usersWithIds,
+    });
+    return res
       .status(201)
-      .json(formatResponse(201, "گروه با موفقیت ایجاد شد.", group));
+      .json(formatResponse(201, "Group successfully created.", group));
   } catch (error: any) {
-    res
+    return res
       .status(500)
       .json(
-        formatResponse(500, "خطا در ایجاد گروه.", null, {}, [error.message])
+        formatResponse(500, "Error creating group.", null, {}, [error.message])
       );
   }
 };
@@ -56,15 +91,17 @@ const updateGroup = async (req: Request, res: Response) => {
     });
     if (updated) {
       const updatedGroup = await Group.findByPk(req.params.id);
-      res.json(formatResponse(200, "گروه با موفقیت ویرایش شد.", updatedGroup));
+      res.json(
+        formatResponse(200, "Group successfully updated.", updatedGroup)
+      );
     } else {
-      res.status(404).json(formatResponse(404, "گروه پیدا نشد.", null));
+      res.status(404).json(formatResponse(404, "Group not found.", null));
     }
   } catch (error: any) {
     res
       .status(500)
       .json(
-        formatResponse(500, "خطا در ویرایش گروه.", null, {}, [error.message])
+        formatResponse(500, "Error updating group.", null, {}, [error.message])
       );
   }
 };
