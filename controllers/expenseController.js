@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
-import { Expense } from "../models/Expense";
-import { formatResponse } from "../util/responseUtil";
+import { Expense } from "../models/Expense.js";
+import { formatResponse } from "../util/responseUtil.js";
 
-const getAllExpenses = async (req: Request, res: Response) => {
+const getAllExpenses = async (req, res) => {
   try {
     const expenses = await Expense.findAll();
     res.json(
@@ -12,7 +11,7 @@ const getAllExpenses = async (req: Request, res: Response) => {
         expenses
       )
     );
-  } catch (error: any) {
+  } catch (error) {
     res
       .status(500)
       .json(
@@ -21,7 +20,7 @@ const getAllExpenses = async (req: Request, res: Response) => {
   }
 };
 
-const getExpenseById = async (req: Request, res: Response) => {
+const getExpenseById = async (req, res) => {
   try {
     const expense = await Expense.findByPk(req.params.id);
     if (expense) {
@@ -31,7 +30,7 @@ const getExpenseById = async (req: Request, res: Response) => {
     } else {
       res.status(404).json(formatResponse(404, "Expense not found.", null));
     }
-  } catch (error: any) {
+  } catch (error) {
     res
       .status(500)
       .json(
@@ -40,7 +39,7 @@ const getExpenseById = async (req: Request, res: Response) => {
   }
 };
 
-const createExpense = async (req: Request, res: Response): Promise<any> => {
+const createExpense = async (req, res) => {
   const { amount, name, payorUser, description } = req.body;
 
   try {
@@ -50,17 +49,19 @@ const createExpense = async (req: Request, res: Response): Promise<any> => {
         .json(formatResponse(400, "Missing required fields."));
     }
 
-    // const expense = await req.group.createExpense({
-    //   name: name,
-    //   amount: amount,
-    //   description: description,
-    //   payorUser: payorUser,
-    // });
+    console.log(req.group);
+
+    const expense = await req.group.createExpense({
+      name: name,
+      amount: amount,
+      description: description,
+      payorUser: payorUser,
+    });
 
     return res
       .status(201)
-      .json(formatResponse(201, "Expense successfully created.", "expense"));
-  } catch (error: any) {
+      .json(formatResponse(201, "Expense successfully created.", expense));
+  } catch (error) {
     return res
       .status(500)
       .json(

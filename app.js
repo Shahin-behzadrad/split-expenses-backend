@@ -1,10 +1,10 @@
 import express from "express";
-import groupRoutes from "./routes/groupRoutes";
-import expenseRoutes from "./routes/expenseRoutes";
-import { sequelize } from "./config/database";
+import groupRoutes from "./routes/groupRoutes.js";
+import expenseRoutes from "./routes/expenseRoutes.js";
+import { sequelize } from "./config/database.js";
 
-import { Expense } from "./models/Expense";
-import { Group } from "./models/Group";
+import { Expense } from "./models/Expense.js";
+import { Group } from "./models/Group.js";
 
 const app = express();
 

@@ -1,9 +1,8 @@
-import { Request, Response } from "express";
-import { Group } from "../models/Group";
-import generateUuid from "../util/generateUuid";
-import { formatResponse } from "../util/responseUtil";
+import { Group } from "../models/Group.js";
+import generateUuid from "../util/generateUuid.js";
+import { formatResponse } from "../util/responseUtil.js";
 
-const getAllGroups = async (req: Request, res: Response) => {
+const getAllGroups = async (req, res) => {
   try {
     const groups = await Group.findAll();
     res.json(
@@ -13,7 +12,7 @@ const getAllGroups = async (req: Request, res: Response) => {
         groups
       )
     );
-  } catch (error: any) {
+  } catch (error) {
     res
       .status(500)
       .json(
@@ -22,7 +21,7 @@ const getAllGroups = async (req: Request, res: Response) => {
   }
 };
 
-const getGroupById = async (req: Request, res: Response) => {
+const getGroupById = async (req, res) => {
   try {
     const group = await Group.findByPk(req.params.id);
     if (group) {
@@ -32,7 +31,7 @@ const getGroupById = async (req: Request, res: Response) => {
     } else {
       res.status(404).json(formatResponse(404, "Group not found.", null));
     }
-  } catch (error: any) {
+  } catch (error) {
     res
       .status(500)
       .json(
@@ -41,7 +40,7 @@ const getGroupById = async (req: Request, res: Response) => {
   }
 };
 
-const createGroup = async (req: Request, res: Response): Promise<any> => {
+const createGroup = async (req, res) => {
   const { currency, description, name, users } = req.body;
 
   if (!Array.isArray(users)) {
@@ -71,7 +70,7 @@ const createGroup = async (req: Request, res: Response): Promise<any> => {
     return res
       .status(201)
       .json(formatResponse(201, "Group successfully created.", group));
-  } catch (error: any) {
+  } catch (error) {
     return res
       .status(500)
       .json(
@@ -80,7 +79,7 @@ const createGroup = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-const updateGroup = async (req: Request, res: Response): Promise<any> => {
+const updateGroup = async (req, res) => {
   if (!Array.isArray(req.body.users)) {
     return res
       .status(400)
@@ -99,7 +98,7 @@ const updateGroup = async (req: Request, res: Response): Promise<any> => {
     } else {
       res.status(404).json(formatResponse(404, "Group not found.", null));
     }
-  } catch (error: any) {
+  } catch (error) {
     res
       .status(500)
       .json(
@@ -108,7 +107,7 @@ const updateGroup = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-const deleteGroup = async (req: Request, res: Response) => {
+const deleteGroup = async (req, res) => {
   try {
     const group = await Group.findByPk(req.params.id);
 
@@ -118,7 +117,7 @@ const deleteGroup = async (req: Request, res: Response) => {
     } else {
       res.status(404).json(formatResponse(404, "Group not found."));
     }
-  } catch (error: any) {
+  } catch (error) {
     res
       .status(500)
       .json(
