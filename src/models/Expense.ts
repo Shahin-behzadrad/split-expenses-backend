@@ -8,16 +8,20 @@ export const Expense = sequelize.define("expense", {
     allowNull: false,
     primaryKey: true,
   },
-  description: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   amount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
-  groupId: {
-    type: DataTypes.INTEGER,
+  payorUser: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 });

@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { formatResponse } from "../util/responseUtil";
 import { Group } from "../models/Group";
-import { CreateGroupRequest } from "../types/Group.type";
-import { v4 as uuidv4 } from "uuid";
+import generateUuid from "../util/generateUuid";
+import { formatResponse } from "../util/responseUtil";
 
 const getAllGroups = async (req: Request, res: Response) => {
   try {
@@ -28,7 +27,7 @@ const getGroupById = async (req: Request, res: Response) => {
     const group = await Group.findByPk(req.params.id);
     if (group) {
       res.json(
-        formatResponse(200, "Groups data retrieved successfully.", group)
+        formatResponse(200, "Group's data retrieved successfully.", group)
       );
     } else {
       res.status(404).json(formatResponse(404, "Group not found.", null));
@@ -42,10 +41,7 @@ const getGroupById = async (req: Request, res: Response) => {
   }
 };
 
-const createGroup = async (
-  req: Request<{}, {}, CreateGroupRequest>,
-  res: Response
-): Promise<any> => {
+const createGroup = async (req: Request, res: Response): Promise<any> => {
   const { currency, description, name, users } = req.body;
 
   if (!Array.isArray(users)) {
@@ -61,8 +57,8 @@ const createGroup = async (
         .json(formatResponse(400, "Missing required fields."));
     }
 
-    const usersWithIds = users.map((name: string) => ({
-      id: uuidv4(),
+    const usersWithIds = users.map((name) => ({
+      id: generateUuid(),
       name,
     }));
 
