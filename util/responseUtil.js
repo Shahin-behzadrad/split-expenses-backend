@@ -1,9 +1,9 @@
 export const formatResponse = (
-  status: number,
-  message: string,
-  data: any = null,
-  additional: any = {},
-  errors: any[] = []
+  status,
+  message,
+  data = null,
+  additional = {},
+  errors = []
 ) => {
   return {
     status,
