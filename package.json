@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "A backend for an expense-sharing application built with Node.js, Express, Sequelize, and MySQL2.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "nodemon --exec ts-node src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js",
+    "start-server": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -14,16 +16,14 @@
   "author": "shahin-behzadrad",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
     "sequelize": "^6.37.5"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.8.7",
-    "nodemon": "^3.1.7",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "nodemon": "^3.1.7"
   }
 }
