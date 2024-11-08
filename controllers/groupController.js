@@ -1,10 +1,11 @@
-import { Group } from "../models/Group.js";
+import Group from "../models/Group.js";
+import User from "../models/User.js";
 import generateUuid from "../util/generateUuid.js";
 import { formatResponse } from "../util/responseUtil.js";
 
 const getAllGroups = async (req, res) => {
   try {
-    const groups = await Group.findAll();
+    const groups = await Group.findAll({ where: { userId: req.user.userId } });
     res.json(
       formatResponse(
         200,
@@ -23,13 +24,17 @@ const getAllGroups = async (req, res) => {
 
 const getGroupById = async (req, res) => {
   try {
-    const group = await Group.findByPk(req.params.id);
+    const group = await Group.findOne({
+      where: { id: req.params.id, userId: req.user.userId },
+    });
     if (group) {
-      res.json(
+      return res.json(
         formatResponse(200, "Group's data retrieved successfully.", group)
       );
     } else {
-      res.status(404).json(formatResponse(404, "Group not found.", null));
+      return res
+        .status(404)
+        .json(formatResponse(404, "Group not found.", null));
     }
   } catch (error) {
     res
@@ -55,16 +60,17 @@ const createGroup = async (req, res) => {
         .status(400)
         .json(formatResponse(400, "Missing required fields."));
     }
+    const user = await User.findByPk(req.user.userId);
 
     const usersWithIds = users.map((name) => ({
       id: generateUuid(),
       name,
     }));
 
-    const group = await Group.create({
-      name,
-      description,
-      currency,
+    const group = await user.createGroup({
+      name: name,
+      description: description,
+      currency: currency,
       users: usersWithIds,
     });
     return res
@@ -80,24 +86,38 @@ const createGroup = async (req, res) => {
 };
 
 const updateGroup = async (req, res) => {
+  const { currency, description, name, users } = req.body;
+
   if (!Array.isArray(req.body.users)) {
     return res
       .status(400)
       .json(formatResponse(400, "Users should be an array."));
   }
 
+  const usersWithIds = users.map((name) => ({
+    id: generateUuid(),
+    name,
+  }));
+
   try {
-    const [updated] = await Group.update(req.body, {
-      where: { id: req.params.id },
+    const group = await Group.findOne({
+      where: { id: req.params.id, userId: req.user.userId },
     });
-    if (updated) {
-      const updatedGroup = await Group.findByPk(req.params.id);
-      res.json(
-        formatResponse(200, "Group successfully updated.", updatedGroup)
-      );
-    } else {
-      res.status(404).json(formatResponse(404, "Group not found.", null));
+
+    if (!group) {
+      return res
+        .status(404)
+        .json(formatResponse(404, "Group not found.", null));
     }
+
+    const updatedGroup = await group.update({
+      name: name,
+      description: description,
+      currency: currency,
+      users: usersWithIds,
+    });
+
+    res.json(formatResponse(200, "Group successfully updated.", updatedGroup));
   } catch (error) {
     res
       .status(500)
@@ -109,7 +129,9 @@ const updateGroup = async (req, res) => {
 
 const deleteGroup = async (req, res) => {
   try {
-    const group = await Group.findByPk(req.params.id);
+    const group = await Group.findOne({
+      where: { id: req.params.id, userId: req.user.userId },
+    });
 
     if (group) {
       await group.destroy();

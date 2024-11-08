@@ -1,13 +1,7 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../config/database.js";
+import sequelize from "../config/database.js";
 
-export const Expense = sequelize.define("expense", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
+const Expense = sequelize.define("expense", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -25,3 +19,5 @@ export const Expense = sequelize.define("expense", {
     allowNull: false,
   },
 });
+
+export default Expense;

@@ -1,4 +1,5 @@
-import { Expense } from "../models/Expense.js";
+import Expense from "../models/Expense.js";
+import Group from "../models/Group.js";
 import { formatResponse } from "../util/responseUtil.js";
 
 const getAllExpenses = async (req, res) => {
@@ -43,19 +44,22 @@ const createExpense = async (req, res) => {
   const { amount, name, payorUser, description } = req.body;
 
   try {
+    const group = await Group.findByPk(req.params.groupId);
+
+    if (!group)
+      return res.status(404).json(formatResponse(404, "Group not found."));
+
     if (!amount || !name || !payorUser || !description) {
       return res
         .status(400)
         .json(formatResponse(400, "Missing required fields."));
     }
 
-    console.log(req.group);
-
-    const expense = await req.group.createExpense({
+    const expense = await group.createExpense({
       name: name,
-      amount: amount,
       description: description,
       payorUser: payorUser,
+      amount: amount,
     });
 
     return res
