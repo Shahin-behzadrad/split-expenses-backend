@@ -25,7 +25,7 @@ const getAllGroups = async (req, res) => {
 const getGroupById = async (req, res) => {
   try {
     const group = await Group.findOne({
-      where: { id: req.params.id, userId: req.user.userId },
+      where: { id: req.params.groupId, userId: req.user.userId },
     });
     if (group) {
       return res.json(
@@ -101,7 +101,7 @@ const updateGroup = async (req, res) => {
 
   try {
     const group = await Group.findOne({
-      where: { id: req.params.id, userId: req.user.userId },
+      where: { id: req.params.groupId, userId: req.user.userId },
     });
 
     if (!group) {
@@ -130,7 +130,7 @@ const updateGroup = async (req, res) => {
 const deleteGroup = async (req, res) => {
   try {
     const group = await Group.findOne({
-      where: { id: req.params.id, userId: req.user.userId },
+      where: { id: req.params.groupId, userId: req.user.userId },
     });
 
     if (group) {
