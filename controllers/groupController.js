@@ -1,3 +1,4 @@
+import sequelize from "../config/database.js";
 import Group from "../models/Group.js";
 import User from "../models/User.js";
 import generateUuid from "../util/generateUuid.js";
@@ -5,12 +6,39 @@ import { formatResponse } from "../util/responseUtil.js";
 
 const getAllGroups = async (req, res) => {
   try {
-    const groups = await Group.findAll({ where: { userId: req.user.userId } });
+    const groups = await Group.findAll({
+      where: { userId: req.user.userId },
+      attributes: [
+        "id",
+        "name",
+        "currency",
+        "users",
+        "createdAt",
+        "updatedAt",
+        [
+          sequelize.literal(
+            `(SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE expenses.groupId = group.id)`
+          ),
+          "totalExpense",
+        ],
+      ],
+    });
+
+    const formattedGroups = groups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      usersCount: group.users.length,
+      totalExpense: group.getDataValue("totalExpense"),
+      currency: group.currency,
+      createdAt: group.createdAt,
+      updatedAt: group.updatedAt,
+    }));
+
     res.json(
       formatResponse(
         200,
         "The requested data has been successfully retrieved.",
-        groups
+        formattedGroups
       )
     );
   } catch (error) {
@@ -28,8 +56,11 @@ const getGroupById = async (req, res) => {
       where: { id: req.params.groupId, userId: req.user.userId },
     });
     if (group) {
+      const groupData = group.toJSON();
+      delete groupData.userId;
+
       return res.json(
-        formatResponse(200, "Group's data retrieved successfully.", group)
+        formatResponse(200, "Group's data retrieved successfully.", groupData)
       );
     } else {
       return res
@@ -73,9 +104,18 @@ const createGroup = async (req, res) => {
       currency: currency,
       users: usersWithIds,
     });
-    return res
-      .status(201)
-      .json(formatResponse(201, "Group successfully created.", group));
+
+    return res.status(201).json(
+      formatResponse(201, "Group successfully created.", {
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        currency: group.currency,
+        users: group.users,
+        createdAt: group.createdAt,
+        updatedAt: group.updatedAt,
+      })
+    );
   } catch (error) {
     return res
       .status(500)
@@ -117,7 +157,10 @@ const updateGroup = async (req, res) => {
       users: usersWithIds,
     });
 
-    res.json(formatResponse(200, "Group successfully updated.", updatedGroup));
+    const groupData = updatedGroup.toJSON();
+    delete groupData.userId;
+
+    res.json(formatResponse(200, "Group successfully updated.", groupData));
   } catch (error) {
     res
       .status(500)

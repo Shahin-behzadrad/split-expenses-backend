@@ -17,14 +17,16 @@ app.use("/api", groupRoutes);
 app.use("/api", expenseRoutes);
 app.use("/api", userRoutes);
 
-User.hasMany(Group, { foreignKey: "userId" });
+User.hasMany(Group, { foreignKey: "userId", onDelete: "CASCADE" });
 Group.belongsTo(User, { foreignKey: "userId" });
 
-Group.hasMany(Expense, { foreignKey: "groupId" });
+Group.hasMany(Expense, { foreignKey: "groupId", onDelete: "CASCADE" });
 Expense.belongsTo(Group, { foreignKey: "groupId" });
 
 sequelize
-  // .sync({ force: true })
   .sync()
   .then(() => app.listen(3000))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.log("Error:", err.message);
+    console.log(err.stack);
+  });

@@ -30,10 +30,12 @@ const PostSignup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, password: hashedPassword });
+    await User.create({ email, password: hashedPassword });
     return res
       .status(201)
-      .json(formatResponse(201, "user successfully created.", user));
+      .json(
+        formatResponse(201, "user successfully created.", { email: email })
+      );
   } catch (error) {
     return res
       .status(500)
@@ -52,7 +54,7 @@ const PostLogin = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json(formatResponse(401, "you are not signed up!"));
+        .json(formatResponse(401, "user is not signed up!"));
     }
 
     const enteredPasswordHashed = await bcrypt.compare(password, user.password);
@@ -60,9 +62,7 @@ const PostLogin = async (req, res) => {
       return res.status(401).json(formatResponse(401, "Invalid password"));
     }
 
-    const token = jwt.sign({ userId: user.id }, "SECRET_KEY", {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ userId: user.id }, "SECRET_KEY");
 
     res.json({ token });
   } catch (error) {
