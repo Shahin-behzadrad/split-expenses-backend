@@ -15,7 +15,11 @@ const Expense = sequelize.define("expense", {
     allowNull: false,
   },
   payorUser: {
-    type: DataTypes.STRING,
+    type: DataTypes.JSON,
+    allowNull: false,
+  },
+  usersShare: {
+    type: DataTypes.JSON,
     allowNull: false,
   },
 });

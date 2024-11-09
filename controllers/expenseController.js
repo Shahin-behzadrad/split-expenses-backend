@@ -10,11 +10,20 @@ const getAllExpenses = async (req, res) => {
 
     if (!group) return res.status(404).json({ message: "Group not found" });
 
+    const formattedGroups = group.expenses.map((expense) => ({
+      id: expense.id,
+      name: expense.name,
+      usersCount: expense.usersShare.length,
+      totalExpense: expense.amount,
+      createdAt: expense.createdAt,
+      updatedAt: expense.updatedAt,
+    }));
+
     res.json(
       formatResponse(
         200,
         "The requested data has been successfully retrieved.",
-        group.expenses
+        formattedGroups
       )
     );
   } catch (error) {
@@ -36,6 +45,8 @@ const getExpenseById = async (req, res) => {
         .status(404)
         .json(formatResponse(404, "Expense not found.", null));
 
+    expense.payorUser = await JSON.parse(expense.payorUser);
+
     res.json(
       formatResponse(200, "Expense's data retrieved successfully.", expense)
     );
@@ -49,7 +60,7 @@ const getExpenseById = async (req, res) => {
 };
 
 const createExpense = async (req, res) => {
-  const { amount, name, payorUser, description } = req.body;
+  const { amount, name, payorUserId, description, usersShare } = req.body;
 
   try {
     const group = await Group.findByPk(req.params.groupId);
@@ -57,22 +68,59 @@ const createExpense = async (req, res) => {
     if (!group)
       return res.status(404).json(formatResponse(404, "Group not found."));
 
-    if (!amount || !name || !payorUser || !description) {
+    if (!amount || !name || !payorUserId || !description || !usersShare) {
       return res
         .status(400)
         .json(
           formatResponse(
             400,
-            "Missing required fields:[name,amount,payorUser,description] "
+            "Missing required fields:[name,amount,payorUserId,description,usersShare] "
           )
         );
     }
 
+    // extract users from group model to use here
+    const groupUsers = group.users;
+
+    const payor = groupUsers.find((user) => user.id === payorUserId);
+    if (!payor) {
+      return res
+        .status(400)
+        .json(
+          formatResponse(
+            400,
+            "The specified payorUser is not part of the group."
+          )
+        );
+    }
+
+    const formattedUsersShare = usersShare.map((userShare) => {
+      const user = groupUsers.find((u) => u.id === userShare.id);
+
+      if (!user) {
+        return res
+          .status(400)
+          .json(
+            formatResponse(
+              400,
+              `User with ID ${userShare.id} is not part of the group.`
+            )
+          );
+      }
+
+      return {
+        id: user.id,
+        name: user.name,
+        amountOwed: userShare.amount,
+      };
+    });
+
     const expense = await group.createExpense({
       name: name,
       description: description,
-      payorUser: payorUser,
+      payorUser: { name: payor.name, id: payor.id },
       amount: amount,
+      usersShare: formattedUsersShare,
     });
 
     return res
