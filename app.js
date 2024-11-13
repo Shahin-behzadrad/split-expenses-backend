@@ -1,5 +1,8 @@
+import fs from "fs";
 import express from "express";
 import sequelize from "./config/database.js";
+import helmet from "helmet";
+import compression from "compression";
 
 import Group from "./models/Group.js";
 import Expense from "./models/Expense.js";
@@ -17,6 +20,9 @@ app.use("/api", groupRoutes);
 app.use("/api", expenseRoutes);
 app.use("/api", userRoutes);
 
+app.use(helmet());
+app.use(compression());
+
 User.hasMany(Group, { foreignKey: "userId", onDelete: "CASCADE" });
 Group.belongsTo(User, { foreignKey: "userId" });
 
@@ -25,7 +31,7 @@ Expense.belongsTo(Group, { foreignKey: "groupId" });
 
 sequelize
   .sync()
-  .then(() => app.listen(3000))
+  .then(() => app.listen(process.env.PORT || 3000))
   .catch((err) => {
     console.log("Error:", err.message);
     console.log(err.stack);
