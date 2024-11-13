@@ -31,7 +31,7 @@ Expense.belongsTo(Group, { foreignKey: "groupId" });
 
 sequelize
   .sync()
-  .then(() => app.listen(process.env.PORT || 3000))
+  .then(() => app.listen(process.env.MYSQLHOST || 3000))
   .catch((err) => {
     console.log("Error:", err.message);
     console.log(err.stack);
