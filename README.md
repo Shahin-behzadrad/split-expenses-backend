@@ -89,9 +89,9 @@ A backend for an expense-sharing application built with Node.js, Express, Sequel
 
 - POST /api/groups/:groupId/expenses: Add a new expense to a group.
 - GET /api/groups/:groupId/expenses: Retrieve all expenses for a specific group.
-- GET /api/groups/:groupId/expenses/expenseId: Get a group by it's id for a specific group.
-- PATCH /api/groups/:groupId/expenses/expenseId: Retrieve all expenses for a specific group.
-- DELETE /api/groups/:groupId/expenses/expenseId: Retrieve all expenses for a specific group.
+- GET /api/groups/:groupId/expenses/:expenseId: Get a group by it's id for a specific group.
+- PATCH /api/groups/:groupId/expenses/:expenseId: Retrieve all expenses for a specific group.
+- DELETE /api/groups/:groupId/expenses/:expenseId: Retrieve all expenses for a specific group.
 
 ## Contributing
 
@@ -107,7 +107,7 @@ Contributions are welcome! To contribute:
 
   For questions or support, feel free to reach out:
 
-  - Shahin Behzadrad: [LinkedIn](https://www.linkedin.com/in/shahin-behzadrad) - [Email](shahinbzr2267@gmail.com)
+  - Shahin Behzadrad: [LinkedIn](https://www.linkedin.com/in/shahin-behzadrad) - **_Email_** : shahinbzr2267@gmail.com
 
 ## Project Evolution
 
